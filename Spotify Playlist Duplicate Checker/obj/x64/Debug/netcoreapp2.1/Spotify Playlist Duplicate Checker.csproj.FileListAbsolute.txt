@@ -1,0 +1,11 @@
+C:\Users\onnov\Documents\AA_Sorted\Git\Spotify Playlist Duplicate Checker\Spotify Playlist Duplicate Checker\bin\x64\Debug\netcoreapp2.1\Spotify Playlist Duplicate Checker.deps.json
+C:\Users\onnov\Documents\AA_Sorted\Git\Spotify Playlist Duplicate Checker\Spotify Playlist Duplicate Checker\bin\x64\Debug\netcoreapp2.1\Spotify Playlist Duplicate Checker.runtimeconfig.json
+C:\Users\onnov\Documents\AA_Sorted\Git\Spotify Playlist Duplicate Checker\Spotify Playlist Duplicate Checker\bin\x64\Debug\netcoreapp2.1\Spotify Playlist Duplicate Checker.runtimeconfig.dev.json
+C:\Users\onnov\Documents\AA_Sorted\Git\Spotify Playlist Duplicate Checker\Spotify Playlist Duplicate Checker\bin\x64\Debug\netcoreapp2.1\Spotify Playlist Duplicate Checker.dll
+C:\Users\onnov\Documents\AA_Sorted\Git\Spotify Playlist Duplicate Checker\Spotify Playlist Duplicate Checker\bin\x64\Debug\netcoreapp2.1\Spotify Playlist Duplicate Checker.pdb
+C:\Users\onnov\Documents\AA_Sorted\Git\Spotify Playlist Duplicate Checker\Spotify Playlist Duplicate Checker\obj\x64\Debug\netcoreapp2.1\Spotify Playlist Duplicate Checker.csprojAssemblyReference.cache
+C:\Users\onnov\Documents\AA_Sorted\Git\Spotify Playlist Duplicate Checker\Spotify Playlist Duplicate Checker\obj\x64\Debug\netcoreapp2.1\Spotify Playlist Duplicate Checker.csproj.CoreCompileInputs.cache
+C:\Users\onnov\Documents\AA_Sorted\Git\Spotify Playlist Duplicate Checker\Spotify Playlist Duplicate Checker\obj\x64\Debug\netcoreapp2.1\Spotify Playlist Duplicate Checker.AssemblyInfoInputs.cache
+C:\Users\onnov\Documents\AA_Sorted\Git\Spotify Playlist Duplicate Checker\Spotify Playlist Duplicate Checker\obj\x64\Debug\netcoreapp2.1\Spotify Playlist Duplicate Checker.AssemblyInfo.cs
+C:\Users\onnov\Documents\AA_Sorted\Git\Spotify Playlist Duplicate Checker\Spotify Playlist Duplicate Checker\obj\x64\Debug\netcoreapp2.1\Spotify Playlist Duplicate Checker.dll
+C:\Users\onnov\Documents\AA_Sorted\Git\Spotify Playlist Duplicate Checker\Spotify Playlist Duplicate Checker\obj\x64\Debug\netcoreapp2.1\Spotify Playlist Duplicate Checker.pdb

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+
+    <style>
+        body{
+            background-color: white;
+            margin: 0px;
+        }
+        .track{
+            /*background-color: rgb(0,164,255);*/
+            width: fit-content;
+            padding: 10px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+        .tracks h1{
+            position: fixed;
+            right: 30px;
+        }
+        .status{
+            position: absolute;
+            left: 50px;
+        }
+        .tracks{
+            top: 40px;
+            position: absolute;
+        }
+        .main-track{
+            color: black;
+            position: absolute;
+            background-color: white;
+            margin-left: -50vw;
+            /*top: 40%;*/
+            top: 0;
+            left: 50px;
+        }
+        .main-track::before{
+            content: '';
+            position: absolute;
+            top: 36px;
+            width: calc(50vw - 50px);
+            z-index: -1;
+            left: 0px;
+            height: 3px;
+            background-color: lightslategray;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+        .dub-tracks{
+            display: inline-block;
+            margin-left: 50%;
+            margin-top: 3%;
+            padding-left: 20px;
+            position: relative;
+        }
+        .dub-tracks.dub-tracks::before {
+            content: '';
+            position: absolute;
+            height: calc(100% - 82px);
+            margin-left: -20px;
+            margin-top: 36px;
+            width: 3px;
+            background-color: lightslategray;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+        .dub-track{
+            margin-bottom: 10px;
+        }
+        .dub-track::after{
+            content: '';
+            position: absolute;
+            margin-left: -30px;
+            margin-top: -28px;
+            width: 20px;
+            height: 3px;
+            background-color: lightslategray;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+        .track-info span{
+            background-color: grey;
+            color: white;
+            border-radius: 4px;
+            padding: 2px;
+            padding-left: 5px;
+            padding-right: 5px;
+            margin-right: 5px;
+        }
+
+        .track-info span .fa{
+            font-size: 80% !important;
+            padding-right: 5px;
+        }
+
+
+        .sidebar{
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            width: 0px;
+            height: 100vh;
+            background-color: white;
+            z-index: 2;
+            padding: 8px;
+            padding-top: 30px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            transition-duration: 0.2s;
+            overflow: hidden;
+        }
+        .sidebar ul{
+            list-style-type: none;
+            padding: 0px;
+            margin: 0px;
+        }
+        .sidebar ul li{
+            cursor: pointer;
+        }
+        .sidebar::before{
+            cursor: pointer;
+            content: '>';
+            color: white;
+            line-height: 100vh;
+            position: absolute;
+            width: 15px;
+            background-color: grey;
+            height: 100vh;
+            padding: 0;
+            padding-left: 2px;
+            margin: 0;
+            top: 0px;
+            margin-left: 100%;
+            left: 0px;
+        }
+        .sidebar:hover{
+            width: auto;
+        }
+    </style>
+    <script src="jquery.js"></script>
+    <script type="text/javascript">
+        function addSongs(id, HardwareName, SensorName, HardwareSensorName, valueStr){
+            var value = parseFloat(valueStr);
+            if($("#"+id+"tr").length == 0){
+                $("#outputTable").append("<tr id=\""+id+"tr\"><th>"+HardwareName+"</th> <th>"+SensorName+"</th> <th>"+HardwareSensorName+"</th> <th>"+value+"</th>"+
+                    "<th><input type=\"text\" placeholder=\"max cap\" value=\"50\" onchange=\"valueChanged(this)\"></th></tr>")
+            }else{
+                $("#"+id+"tr").children().eq(3).html(value)
+            }
+        }
+        function setplaylists(list){
+            list = JSON.parse(list);
+            console.log("list: ", list);
+            $("#playlistOverview").html("");
+            list.forEach(function(element) {
+                $("#playlistOverview").append("<li onclick=\"loadDuplicates('"+element.id+"')\">"+element.name+" | #" + element.tracks.total +"</li>");
+            });
+            $("#tracks").html("<h1><- Select a playlist</h1>");
+        }
+        function loadDuplicates(id){
+            $("#tracks").html("<h1>Loading duplicates...</h1>");
+            bound.getDups(id)
+        }
+        function handleduplicates(list){
+            list = JSON.parse(list);
+            console.log("list: ", list);
+            $("#tracks").html("");
+            list.forEach(function(trackInfo) {
+                var endString = '<div class="dub-tracks" id="dub-tracks">';
+                //Add Duplicate tracks
+                trackInfo.dupList.forEach(function(duplicate) {
+                    endString += '<div class="track dub-track" attr-trackid="'+duplicate.track.id+'">';
+                        endString += '<div class="track-info">';
+                            endString += '<span class="trackinfo-duration"><div class="fa fa-clock"></div>'+millisToMinutesAndSeconds(duplicate.track.duration)+'</span>';
+                            endString += '<span class="trackinfo-percentage">'+(duplicate.distance*100).toFixed(2)+'%</span>';
+                            if(duplicate.isRemix){
+                                endString += '<span class="trackinfo-isremix">remix</span>';
+                            }
+                        endString += '</div>';
+                        endString += '<div class="track-name">'+duplicate.track.name+'</div>';
+                        endString += '<div class="track-artists">'+getArtistString(duplicate.track.artists)+'</div>';
+                    endString += '</div>';
+                });
+                // Add main track
+                endString += '<div class="track main-track" attr-trackid="'+trackInfo.id+'">';
+                    endString += '<div class="track-info">';
+                        endString += '<span class="trackinfo-duration"><div class="fa fa-clock"></div>'+millisToMinutesAndSeconds(trackInfo.duration)+'</span>';
+                        if(trackInfo.isRemix){
+                            endString += '<span class="trackinfo-isremix">remix</span>';
+                        }
+                    endString += '</div>';
+                    endString += '<div class="track-name">'+trackInfo.name+'</div>';
+                    endString += '<div class="track-artists">'+getArtistString(trackInfo.artists)+'</div>';
+                endString += '</div>';
+                endString += '</div>';
+                $("#tracks").append(endString);
+            });
+        }
+        function getArtistString(artistArr){
+            var rtn = "";
+            counter = 0;
+            if(artistArr === undefined){
+                return "unknonwn";
+            }
+            artistArr.forEach(function(element){
+                counter++;
+                rtn += element.name;
+                if(artistArr.length > counter){
+                    rtn += ", ";
+                }
+            });
+            return rtn;
+        }
+        function millisToMinutesAndSeconds(millis) {
+            var minutes = Math.floor(millis / 60000);
+            var seconds = ((millis % 60000) / 1000).toFixed(0);
+            return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+        }
+        $(document).ready(function(){
+            //$("#tracks").html("<h1>Requesting playlists...</h1>");
+            bound.getPlaylists();
+        });
+    </script>
+</head>
+<body>
+    <div class="sidebar">
+        <ul id="playlistOverview">
+            <li>23412341234123</li>
+            <li>23412341234123</li>
+            <li>23412341234123</li>
+        </ul>
+    </div>
+    <div class="duplicatetracks">
+        <div class="status" id="status">
+            <h1>Total duplicates: 100</h1>
+        </div>
+        <div class="tracks" id="tracks">
+            <div class="dub-tracks" id="dub-tracks">
+                <div class="track dub-track">
+                    <div class="track-info">
+                        <span class="trackinfo-procentage">80%</span>
+                        <span class="trackinfo-isremix">remix</span>
+                        <span class="trackinfo-duration"><div class="fa fa-clock"></div>0:12</span>
+                    </div>
+                    <div class="track-name">Poker face</div>
+                    <div class="track-artists">lady gaga, dsadas, dassaasdsadasdas, adsaaa, sdasdadas</div>
+                </div>
+                <div class="track main-track">
+                    <div class="track-info">
+                        <span class="trackinfo-procentage">80%</span>
+                        <span class="trackinfo-isremix">remix</span>
+                    </div>
+                    <div class="track-name">Poker face</div>
+                    <div class="track-artists">lady gaga, dsadas, dassaasdsadasdas, adsaaa, sdasdadas</div>
+                </div>
+            </div>
+            <div class="dub-tracks" id="dub-tracks">
+                <div class="track dub-track">
+                    <div class="track-info">
+                        <span class="trackinfo-procentage">80%</span>
+                        <span class="trackinfo-isremix">remix</span>
+                    </div>
+                    <div class="track-name">Poker face</div>
+                    <div class="track-artists">lady gaga, dsadas, dassaasdsadasdas, adsaaa, sdasdadas</div>
+                </div>
+                <div class="track main-track">
+                    <div class="track-info">
+                        <span class="trackinfo-procentage">80%</span>
+                        <span class="trackinfo-isremix">remix</span>
+                    </div>
+                    <div class="track-name">Poker face</div>
+                    <div class="track-artists">lady gaga, dsadas, dassaasdsadasdas, adsaaa, sdasdadas</div>
+                </div>
+            </div>
+            <div class="dub-tracks" id="dub-tracks">
+                <div class="track dub-track">
+                    <div class="track-info">
+                        <span class="trackinfo-procentage">80%</span>
+                        <span class="trackinfo-isremix">remix</span>
+                    </div>
+                    <div class="track-name">Poker face</div>
+                    <div class="track-artists">lady gaga, dsadas, dassaasdsadasdas, adsaaa, sdasdadas</div>
+                </div>
+                <div class="track dub-track">
+                    <div class="track-info">
+                        <span class="trackinfo-procentage">80%</span>
+                        <span class="trackinfo-isremix">remix</span>
+                    </div>
+                    <div class="track-name">Poker face</div>
+                    <div class="track-artists">lady gaga, dsadas, dassaasdsadasdas, adsaaa, sdasdadas</div>
+                </div>
+                <div class="track dub-track">
+                    <div class="track-info">
+                        <span class="trackinfo-procentage">80%</span>
+                        <span class="trackinfo-isremix">remix</span>
+                    </div>
+                    <div class="track-name">Poker face</div>
+                    <div class="track-artists">lady gaga, dsadas, dassaasdsadasdas, adsaaa, sdasdadas</div>
+                </div>
+                <div class="track main-track">
+                    <div class="track-info">
+                        <span class="trackinfo-procentage">80%</span>
+                        <span class="trackinfo-isremix">remix</span>
+                    </div>
+                    <div class="track-name">Poker face</div>
+                    <div class="track-artists">lady gaga, dsadas, dassaasdsadasdas, adsaaa, sdasdadas</div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.156
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spotify Playlist Duplicate Checker", "Spotify Playlist Duplicate Checker\Spotify Playlist Duplicate Checker.csproj", "{91C55432-8C02-45BC-B682-816CD305EBB0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spot Dub Checker UI", "Spot Dub Checker UI\Spot Dub Checker UI.csproj", "{485D0819-D620-4B5A-9D38-27394E697E34}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{91C55432-8C02-45BC-B682-816CD305EBB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91C55432-8C02-45BC-B682-816CD305EBB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91C55432-8C02-45BC-B682-816CD305EBB0}.Debug|x64.ActiveCfg = Debug|x64
+		{91C55432-8C02-45BC-B682-816CD305EBB0}.Debug|x64.Build.0 = Debug|x64
+		{91C55432-8C02-45BC-B682-816CD305EBB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91C55432-8C02-45BC-B682-816CD305EBB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91C55432-8C02-45BC-B682-816CD305EBB0}.Release|x64.ActiveCfg = Release|x64
+		{91C55432-8C02-45BC-B682-816CD305EBB0}.Release|x64.Build.0 = Release|x64
+		{485D0819-D620-4B5A-9D38-27394E697E34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{485D0819-D620-4B5A-9D38-27394E697E34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{485D0819-D620-4B5A-9D38-27394E697E34}.Debug|x64.ActiveCfg = Debug|x64
+		{485D0819-D620-4B5A-9D38-27394E697E34}.Debug|x64.Build.0 = Debug|x64
+		{485D0819-D620-4B5A-9D38-27394E697E34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{485D0819-D620-4B5A-9D38-27394E697E34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{485D0819-D620-4B5A-9D38-27394E697E34}.Release|x64.ActiveCfg = Release|x64
+		{485D0819-D620-4B5A-9D38-27394E697E34}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7DEC9345-9AC9-4D09-A1A9-9C80CFE7C1AD}
+	EndGlobalSection
+EndGlobal
