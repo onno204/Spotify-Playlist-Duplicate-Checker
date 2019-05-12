@@ -22,7 +22,7 @@ namespace Spot_Dub_Checker_UI {
             _secretId = string.IsNullOrEmpty(_secretId) ? Environment.GetEnvironmentVariable("SPOTIFY_SECRET_ID") : _secretId;
             Console.WriteLine("### Spotify API Duplicate checker ###");
 
-            AuthorizationCodeAuth auth = new AuthorizationCodeAuth(_clientId, _secretId, "http://localhost:4002", "http://localhost:4002", Scope.UserTopRead | Scope.UserReadRecentlyPlayed | Scope.PlaylistReadPrivate | Scope.PlaylistReadCollaborative);
+            AuthorizationCodeAuth auth = new AuthorizationCodeAuth(_clientId, _secretId, "http://localhost:4002", "http://localhost:4002", Scope.UserTopRead | Scope.UserReadRecentlyPlayed | Scope.PlaylistReadPrivate | Scope.PlaylistModifyPrivate | Scope.PlaylistModifyPublic | Scope.PlaylistReadCollaborative);
             auth.AuthReceived += AuthOnAuthReceived;
             auth.Start();
             auth.OpenBrowser();
@@ -76,7 +76,7 @@ namespace Spot_Dub_Checker_UI {
                 playlists.Items.ForEach(playlist => {
                     if(playlist.Name == playlistName || (playlist.Id == playlistName)) {
                         //Console.WriteLine($"Checking playlist: {playlist.Name}");
-                        Paging<PlaylistTrack> PTracks = api.GetPlaylistTracks(profile.Id, playlist.Id, "", 100, 0);
+                        Paging<PlaylistTrack> PTracks = api.GetPlaylistTracks(playlist.Id, "", 100, 0);
                         int counter = 0;
                         List<FullTrack> tracks = new List<FullTrack>();
                         while(counter < PTracks.Total) {
@@ -84,36 +84,76 @@ namespace Spot_Dub_Checker_UI {
                                 tracks.Add(tr.Track);
                             });
                             counter += PTracks.Items.Count;
-                            PTracks = api.GetPlaylistTracks(profile.Id, playlist.Id, "", 100, counter);
+                            PTracks = api.GetPlaylistTracks(playlist.Id, "", 100, counter);
                         }
                         //Console.WriteLine("tracks.Total: " + PTracks.Total);
                         tracks.ForEach(track => {
-                            trackObj tO = new trackObj {
-                                albumId = track.Album.Id,
-                                artists = track.Artists,
-                                artistsNames = track.Artists.Select(r => r.Name).ToList(),
-                                duration = track.DurationMs,
-                                id = track.Id,
-                                name = track.Name.Trim(),
-                                actualName = getActualSongName(track.Name.Trim()).str,
-                                isRemix = getActualSongName(track.Name.Trim()).bol
-                            };
-                            processedTracks.ForEach(pTrack => {
-                                double distance = JaroWinklerDistance.proximity(tO.actualName, pTrack.actualName);
-                                if(distance >= 0.9) {
-                                    pTrack.dupList.Add(new trackDistance {
-                                        distance = distance,
-                                        track = tO
-                                    });
-                                    trackObj tmp = pTrack;
-                                    tmp.dupList = new List<trackDistance>();
-                                    tO.dupList.Add(new trackDistance {
-                                        distance = distance,
-                                        track = tmp
-                                    });
-                                }
-                            });
-                            processedTracks.Add(tO);
+                            if (track != null) { 
+                                trackObj tO = new trackObj {
+                                    albumId = track.Album.Id,
+                                    uri = track.Uri,
+                                    artists = track.Artists,
+                                    artistsNames = track.Artists.Select(r => r.Name).ToList(),
+                                    duration = track.DurationMs,
+                                    id = track.Id,
+                                    name = track.Name.Trim(),
+                                    actualName = getActualSongName(track.Name.Trim()).str,
+                                    isRemix = getActualSongName(track.Name.Trim()).bol
+                                };
+                                processedTracks.ForEach(pTrack => {
+                                    double distance = JaroWinklerDistance.proximity(tO.actualName, pTrack.actualName);
+                                    if(distance >= 0.9) {
+                                        List<SimpleArtist> PTDub = new List<SimpleArtist>();
+                                        List<SimpleArtist> PTnonDub = new List<SimpleArtist>();
+                                        List<SimpleArtist> tODub = new List<SimpleArtist>();
+                                        List<SimpleArtist> tOnonDub = new List<SimpleArtist>();
+                                        pTrack.artists.ForEach(artist => {
+                                            double highestDistance = 0.0;
+                                            tO.artists.ForEach(artist2 => {
+                                                double distance2 = JaroWinklerDistance.proximity(artist.Name, artist2.Name);
+                                                if(distance2 > highestDistance) {
+                                                    highestDistance = distance2;
+                                                }
+                                            });
+                                            if(highestDistance >= 0.8) {
+                                                PTDub.Add(artist);
+                                            } else {
+                                                PTnonDub.Add(artist);
+                                            }
+                                        });
+                                        tO.artists.ForEach(artist => {
+                                            double highestDistance = 0.0;
+                                            pTrack.artists.ForEach(artist2 => {
+                                                double distance2 = JaroWinklerDistance.proximity(artist.Name, artist2.Name);
+                                                if(distance2 > highestDistance) {
+                                                    highestDistance = distance2;
+                                                }
+                                            });
+                                            if(highestDistance >= 0.8) {
+                                                tODub.Add(artist);
+                                            } else {
+                                                tOnonDub.Add(artist);
+                                            }
+                                        });
+                                        pTrack.dupList.Add(new trackDistance {
+                                            distance = distance,
+                                            track = tO,
+                                            nonDupArtists = tOnonDub,
+                                            dupArtists = tODub
+                                        });
+
+                                        trackObj tmp = pTrack;
+                                        tmp.dupList = new List<trackDistance>();
+                                        tO.dupList.Add(new trackDistance {
+                                            distance = distance,
+                                            track = tmp,
+                                            nonDupArtists = PTnonDub,
+                                            dupArtists = PTDub
+                                        });
+                                    }
+                                });
+                                processedTracks.Add(tO);
+                            }
                         });
 
                         processedTracks.ForEach(pTrack => {
@@ -131,6 +171,15 @@ namespace Spot_Dub_Checker_UI {
             return rtn;
         }
 
+        public static string removeTrack(string playlistId, string trackUri) {
+            Console.WriteLine("Removing: " + trackUri + " from " + playlistId);
+            PrivateProfile profile = api.GetPrivateProfile();
+            ErrorResponse response = api.RemovePlaylistTrack(playlistId, new DeleteTrackUri(trackUri));
+            if(response.HasError()) {
+                return response.Error.Message;
+            }
+            return "";
+        }
 
         private static void PrintUsefulData() {
             PrivateProfile profile = api.GetPrivateProfile();
@@ -154,7 +203,7 @@ namespace Spot_Dub_Checker_UI {
                 playlists.Items.ForEach(playlist => {
                     if(playlist.Name == playlistName || (playlist.Id == playlistName)) {
                         Console.WriteLine($"Checking playlist: {playlist.Name}");
-                        Paging<PlaylistTrack> PTracks = api.GetPlaylistTracks(profile.Id, playlist.Id, "", 100, 0);
+                        Paging<PlaylistTrack> PTracks = api.GetPlaylistTracks(playlist.Id, "", 100, 0);
                         int counter = 0;
                         List<FullTrack> tracks = new List<FullTrack>();
                         while(counter < PTracks.Total) {
@@ -162,7 +211,7 @@ namespace Spot_Dub_Checker_UI {
                                 tracks.Add(tr.Track);
                             });
                             counter += PTracks.Items.Count;
-                            PTracks = api.GetPlaylistTracks(profile.Id, playlist.Id, "", 100, counter);
+                            PTracks = api.GetPlaylistTracks(playlist.Id, "", 100, counter);
                         }
                         Console.WriteLine("tracks.Total: " + PTracks.Total);
                         tracks.ForEach(track => {
@@ -181,14 +230,40 @@ namespace Spot_Dub_Checker_UI {
                             processedTracks.ForEach(pTrack => {
                                 double distance = JaroWinklerDistance.proximity(tO.actualName, pTrack.actualName);
                                 if(distance >= 0.9) {
-                                    pTrack.dupList.Add(new trackDistance {
+                                    trackDistance PTrackDistance = new trackDistance {
                                         distance = distance,
                                         track = tO
-                                    });
-                                    tO.dupList.Add(new trackDistance {
+                                    };
+                                    trackDistance tOTrackDistance = new trackDistance {
                                         distance = distance,
                                         track = pTrack
+                                    };
+                                    pTrack.artists.ForEach(artist => {
+                                        double highestDistance = 0.0;
+                                        tO.artists.ForEach(artist2 => {
+                                            double distance2 = JaroWinklerDistance.proximity(artist.Name, artist2.Name);
+                                            if(distance2 > highestDistance) {
+                                                highestDistance = distance2;
+                                            }
+                                        });
+                                        if(highestDistance >= 0.9) { PTrackDistance.dupArtists.Add(artist);
+                                        } else { PTrackDistance.nonDupArtists.Add(artist);
+                                        }
                                     });
+                                    tO.artists.ForEach(artist => {
+                                        double highestDistance = 0.0;
+                                        pTrack.artists.ForEach(artist2 => {
+                                            double distance2 = JaroWinklerDistance.proximity(artist.Name, artist2.Name);
+                                            if(distance2 > highestDistance) {
+                                                highestDistance = distance2;
+                                            }
+                                        });
+                                        if(highestDistance >= 0.9) { tOTrackDistance.dupArtists.Add(artist);
+                                        } else { tOTrackDistance.nonDupArtists.Add(artist);
+                                        }
+                                    });
+                                    pTrack.dupList.Add(PTrackDistance);
+                                    tO.dupList.Add(tOTrackDistance);
                                 }
                             });
                             processedTracks.Add(tO);
@@ -198,7 +273,10 @@ namespace Spot_Dub_Checker_UI {
                             if(pTrack.dupList.Count >= 1) {
                                 pTrack.dupList = pTrack.dupList.OrderBy(o => o.distance).ToList();
                                 string joinedString = string.Join(", ", pTrack.dupList);
-                                Console.WriteLine(pTrack.name + ": " + joinedString);
+                                pTrack.dupList.ForEach(dupTrack => {
+                                    
+                                });
+                                //Console.WriteLine(pTrack.name + ": " + joinedString);
                             }
                         });
                     }
@@ -212,7 +290,7 @@ namespace Spot_Dub_Checker_UI {
 
         public static stringBoolObj getActualSongName(string name) {
             // Remaster, Remastered, remix, mix, rerecored, Radio Edit, single edit, vocal edit
-            List<string> nonOriginalStrings = new List<string> { "remaster", "mix", "rerecored", "edit" };
+            List<string> nonOriginalStrings = new List<string> { "remaster", "mix", "rerecored", "edit", "radio", "mono", "version" };
             string[] splitted = name.Split('-');
             string actualN = name;
             Boolean isRemix = false;
@@ -233,12 +311,15 @@ namespace Spot_Dub_Checker_UI {
     public class trackDistance {
         public trackObj track { get; set; }
         public double distance { get; set; }
+        public List<SimpleArtist> dupArtists { get; set; } = new List<SimpleArtist>();
+        public List<SimpleArtist> nonDupArtists { get; set; } = new List<SimpleArtist>();
         public override string ToString() {
             return track.name + "(" + distance + ")";
         }
     }
     public class trackObj {
         public string id { get; set; }
+        public string uri { get; set; }
         public string name { get; set; }
         public string albumId { get; set; }
         public List<SimpleArtist> artists { get; set; }

@@ -22,6 +22,10 @@
             position: absolute;
             left: 50px;
         }
+        #totalDubs::before{
+            content: 'Total Duplicates: ';
+        }
+
         .tracks{
             top: 40px;
             position: absolute;
@@ -90,7 +94,19 @@
             font-size: 80% !important;
             padding-right: 5px;
         }
+        
+        .trackinfo-isremix{ background-color: rgb(255, 102, 0) !important; }
+        .trackinfo-percentage{ background-color: rgb(0, 204, 0) !important; }
+        .trackinfo-duration{ background-color: rgb(0, 102, 255) !important; }
+        .trackinfo-remove{ cursor: pointer; background-color: rgb(125, 0, 0) !important; }
+        .track-removed{ background-color: rgb(204, 0, 0) !important; }
 
+        .track-artists .dups{
+            color: red;
+        }
+        .track-artists .nonDups{
+            color: green;
+        }
 
         .sidebar{
             position: fixed;
@@ -156,34 +172,41 @@
         }
         function loadDuplicates(id){
             $("#tracks").html("<h1>Loading duplicates...</h1>");
-            bound.getDups(id)
+            bound.getDups(id);
         }
-        function handleduplicates(list){
+        function deleteTrack(obj, playlistId, trackUri, trackID){
+            $(".trackID-"+trackID).addClass('track-removed');
+            bound.removeTrack(playlistId, trackUri);
+        }
+        function handleduplicates(list, playlistID){
             list = JSON.parse(list);
             console.log("list: ", list);
             $("#tracks").html("");
+            $("#totalDubs").text(list.length);
             list.forEach(function(trackInfo) {
                 var endString = '<div class="dub-tracks" id="dub-tracks">';
                 //Add Duplicate tracks
                 trackInfo.dupList.forEach(function(duplicate) {
-                    endString += '<div class="track dub-track" attr-trackid="'+duplicate.track.id+'">';
+                    endString += '<div class="track dub-track trackID-'+duplicate.track.id+'" attr-trackid="'+duplicate.track.id+'">';
                         endString += '<div class="track-info">';
+                            endString += '<span class="trackinfo-remove" onclick="deleteTrack(this, \''+playlistID+'\', \''+duplicate.track.uri+'\', \''+duplicate.track.id+'\')"><div class="fa fa-trash-alt"></div>REMOVE</span>';
                             endString += '<span class="trackinfo-duration"><div class="fa fa-clock"></div>'+millisToMinutesAndSeconds(duplicate.track.duration)+'</span>';
                             endString += '<span class="trackinfo-percentage">'+(duplicate.distance*100).toFixed(2)+'%</span>';
-                            if(duplicate.isRemix){
-                                endString += '<span class="trackinfo-isremix">remix</span>';
+                            if(duplicate.track.isRemix){
+                                endString += '<span class="trackinfo-isremix"><div class="fa fa-compact-disc"></div>remix</span>';
                             }
                         endString += '</div>';
                         endString += '<div class="track-name">'+duplicate.track.name+'</div>';
-                        endString += '<div class="track-artists">'+getArtistString(duplicate.track.artists)+'</div>';
+                        endString += '<div class="track-artists">'+getDubNonDubArtistString(duplicate.dupArtists, duplicate.nonDupArtists)+'</div>';
                     endString += '</div>';
                 });
                 // Add main track
-                endString += '<div class="track main-track" attr-trackid="'+trackInfo.id+'">';
+                endString += '<div class="track main-track trackID-'+trackInfo.id+'" attr-trackid="'+trackInfo.id+'">';
                     endString += '<div class="track-info">';
+                        endString += '<span class="trackinfo-remove" onclick="deleteTrack(this, \''+playlistID+'\', \''+trackInfo.uri+'\', \''+trackInfo.id+'\')"><div class="fa fa-trash-alt"></div>REMOVE</span>';
                         endString += '<span class="trackinfo-duration"><div class="fa fa-clock"></div>'+millisToMinutesAndSeconds(trackInfo.duration)+'</span>';
                         if(trackInfo.isRemix){
-                            endString += '<span class="trackinfo-isremix">remix</span>';
+                            endString += '<span class="trackinfo-isremix"><div class="fa fa-compact-disc"></div>remix</span>';
                         }
                     endString += '</div>';
                     endString += '<div class="track-name">'+trackInfo.name+'</div>';
@@ -192,6 +215,17 @@
                 endString += '</div>';
                 $("#tracks").append(endString);
             });
+        }
+        function getDubNonDubArtistString(dubList, nonDubList){
+            var dubS = "<span class=\"dups\">"+getArtistString(dubList)+"</span>";
+            var nonDubS = "<span class=\"nonDups\">"+getArtistString(nonDubList)+"</span>";
+            if(nonDubList.length >= 1 && dubList.length >= 1){
+                return dubS +", " + nonDubS;
+            }else if(nonDubList.length == 0 && dubList.length >= 1){
+                return dubS;
+            }else if(nonDubList.length >= 1 && dubList.length == 0){
+                return nonDubS;
+            }
         }
         function getArtistString(artistArr){
             var rtn = "";
@@ -229,14 +263,14 @@
     </div>
     <div class="duplicatetracks">
         <div class="status" id="status">
-            <h1>Total duplicates: 100</h1>
+            <h1 id="totalDubs">100</h1>
         </div>
         <div class="tracks" id="tracks">
             <div class="dub-tracks" id="dub-tracks">
                 <div class="track dub-track">
                     <div class="track-info">
-                        <span class="trackinfo-procentage">80%</span>
-                        <span class="trackinfo-isremix">remix</span>
+                        <span class="trackinfo-percentage">80%</span>
+                        <span class="trackinfo-isremix"><div class="fa fa-compact-disc"></div>remix</span>
                         <span class="trackinfo-duration"><div class="fa fa-clock"></div>0:12</span>
                     </div>
                     <div class="track-name">Poker face</div>
@@ -244,7 +278,7 @@
                 </div>
                 <div class="track main-track">
                     <div class="track-info">
-                        <span class="trackinfo-procentage">80%</span>
+                        <span class="trackinfo-percentage">80%</span>
                         <span class="trackinfo-isremix">remix</span>
                     </div>
                     <div class="track-name">Poker face</div>

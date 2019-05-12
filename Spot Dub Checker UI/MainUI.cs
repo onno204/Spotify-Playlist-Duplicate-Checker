@@ -60,10 +60,20 @@ namespace Spot_Dub_Checker_UI {
         }
         private Boolean _AlarmEnabled = false;
         public void getPlaylists() {
-            Program.MainUIobj.ExecuteMainWebbrowserScript("setplaylists", new object[] { JsonConvert.SerializeObject(spotConnector.getPlaylists()) });
+            new Thread(() => {
+                Program.MainUIobj.ExecuteMainWebbrowserScript("setplaylists", new object[] { JsonConvert.SerializeObject(spotConnector.getPlaylists()) });
+            }).Start();
         }
         public void getDups(string PlaylistID) {
-            Program.MainUIobj.ExecuteMainWebbrowserScript("handleduplicates", new object[] { JsonConvert.SerializeObject(spotConnector.getPlaylistsDuplicates(PlaylistID)) });
+            new Thread(() => {
+                Program.MainUIobj.ExecuteMainWebbrowserScript("handleduplicates", new object[] { JsonConvert.SerializeObject(spotConnector.getPlaylistsDuplicates(PlaylistID)), PlaylistID });
+            }).Start();
+        }
+        public void removeTrack(string playlistId, string trackUri) {
+            string Err = spotConnector.removeTrack(playlistId, trackUri);
+            if(Err.Length >= 2) {
+                Console.WriteLine("Error while removing song: " + Err);
+            }
         }
 
     }
