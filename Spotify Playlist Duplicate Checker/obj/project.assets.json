@@ -2759,27 +2759,20 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\onnov\\.nuget\\packages\\": {},
-    "C:\\ProgramData\\Xamarin\\NuGet\\": {},
-    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
+    "C:\\Users\\onnov\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\onnov\\Documents\\AA_Sorted\\Git\\Spotify Playlist Duplicate Checker\\Spotify Playlist Duplicate Checker\\Spotify Playlist Duplicate Checker.csproj",
+      "projectUniqueName": "C:\\Users\\onnov\\Documents\\AA_Sorted\\Git\\Spotify-Playlist-Duplicate-Checker\\Spotify Playlist Duplicate Checker\\Spotify Playlist Duplicate Checker.csproj",
       "projectName": "Spotify Playlist Duplicate Checker",
-      "projectPath": "C:\\Users\\onnov\\Documents\\AA_Sorted\\Git\\Spotify Playlist Duplicate Checker\\Spotify Playlist Duplicate Checker\\Spotify Playlist Duplicate Checker.csproj",
+      "projectPath": "C:\\Users\\onnov\\Documents\\AA_Sorted\\Git\\Spotify-Playlist-Duplicate-Checker\\Spotify Playlist Duplicate Checker\\Spotify Playlist Duplicate Checker.csproj",
       "packagesPath": "C:\\Users\\onnov\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\onnov\\Documents\\AA_Sorted\\Git\\Spotify Playlist Duplicate Checker\\Spotify Playlist Duplicate Checker\\obj\\",
+      "outputPath": "C:\\Users\\onnov\\Documents\\AA_Sorted\\Git\\Spotify-Playlist-Duplicate-Checker\\Spotify Playlist Duplicate Checker\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\ProgramData\\Xamarin\\NuGet\\",
-        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-      ],
       "configFilePaths": [
         "C:\\Users\\onnov\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "netcoreapp2.1"
@@ -2818,10 +2811,16 @@
           }
         },
         "imports": [
-          "net461"
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48"
         ],
         "assetTargetFallback": true,
-        "warn": true
+        "warn": true,
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.0.100\\RuntimeIdentifierGraph.json"
       }
     }
   }

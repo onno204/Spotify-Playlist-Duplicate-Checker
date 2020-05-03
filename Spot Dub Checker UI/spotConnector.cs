@@ -9,8 +9,8 @@ using System.Linq;
 
 namespace Spot_Dub_Checker_UI {
     class spotConnector {
-        private static string _clientId = ""; //"";
-        private static string _secretId = ""; //"";
+        private static string _clientId = "6e9406eba9324adfbc3b308d4b46d6e1"; //"";
+        private static string _secretId = "6b8c079ae01240dc964ae0bcc1f612b8"; //"";
 
         public static SpotifyWebAPI api;
         public static Boolean initFinished = false;
